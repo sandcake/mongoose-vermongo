@@ -12,8 +12,7 @@ npm install mongoose-vermongo
 ## Usage
 ```javascript  
 var mongoose = require('mongoose');
-var vermongo = require('../dist/index.js');
-var promise = require('bluebird')
+var vermongo = require('mongoose-vermongo');
 mongoose.Promise = require('bluebird');
 
 var Schema = mongoose.Schema;
@@ -96,3 +95,7 @@ There will be 3 records:
     "tags" : []
 }
 ```
+
+## LICENSE
+
+[MIT License](./LICENSE.md)
