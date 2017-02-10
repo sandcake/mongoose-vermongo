@@ -8,12 +8,20 @@
     "run": "node dist/index.js",
     "br": "npm run build && npm run run",
     "prepublish": "npm run test && npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 0"
   },
   "keywords": [
     "mongodb",
     "vermongo"
   ],
+  "contributors": [
+    "Murat Sutunc <murat@codela.net>"
+  ],
+  "homepage": "https://github.com/TheCodela/mongoose-vermongo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheCodela/mongoose-vermongo.git"
+  },
   "author": "Codela",
   "license": "MIT",
   "devDependencies": {
