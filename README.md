@@ -53,7 +53,7 @@ There will be 0 records
 ### pageschemas.vermongo
 There will be 3 records:  
 
-```json
+```javascript
 {
     "_id" : {
         "_version" : 1,
