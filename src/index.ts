@@ -111,7 +111,8 @@ module.exports = function(schema: Mongoose.Schema, options: PluginOptions) {
     clone[ID] = { [ID]: this[ID], [VERSION]: this[VERSION]};
 
     new schema.statics.VersionedModel(clone)
-      .save(() => {
+      .save()
+      .then(() => {
         this[VERSION]++;
         let deletedClone = {
           [ID]: { [ID]: this[ID], [VERSION]: this[VERSION] },
