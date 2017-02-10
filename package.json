@@ -1,0 +1,25 @@
+{
+  "name": "mongoose-vermongo",
+  "version": "0.0.1",
+  "description": "Versioning module for MongoDB",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "run": "node dist/index.js",
+    "br": "npm run build && npm run run",
+    "prepublish": "npm run test && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mongodb",
+    "vermongo"
+  ],
+  "author": "Codela",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/mongoose": "^4.7.4",
+    "@types/node": "^6.0.63",
+    "mongoose": "^4.8.1",
+    "typescript": "^2.1.5"
+  }
+}
