@@ -1,6 +1,6 @@
 # Vermongo Mongoose Plugin
 
-[![npm version](https://badge.fury.io/js/mongoose-vermongo.svg)](https://badge.fury.io/js/mongoose-vermongo)  
+[![npm version](https://badge.fury.io/js/mongoose-vermongo.svg)](https://badge.fury.io/js/mongoose-vermongo)[![Build Status](https://travis-ci.org/TheCodela/mongoose-vermongo.svg?branch=master)](https://travis-ci.org/TheCodela/mongoose-vermongo)  
 
 Keeps history for mongoose documents.  
 
