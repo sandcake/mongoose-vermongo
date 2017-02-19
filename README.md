@@ -1,5 +1,7 @@
 # Vermongo Mongoose Plugin
 
+[![npm version](https://badge.fury.io/js/mongoose-vermongo.svg)](https://badge.fury.io/js/mongoose-vermongo)  
+
 Keeps history for mongoose documents.  
 
 Spec for Vermongo [[link](https://github.com/thiloplanz/v7files/wiki/Vermongo)]

@@ -1,6 +1,6 @@
 {
   "name": "mongoose-vermongo",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Versioning module for MongoDB",
   "main": "dist/index.js",
   "scripts": {
@@ -8,11 +8,17 @@
     "run": "node dist/index.js",
     "br": "npm run build && npm run run",
     "prepublish": "npm run test && npm run build",
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "test": "mocha -r ts-node/register test/**/test.ts"
   },
   "keywords": [
+    "mongo",
     "mongodb",
-    "vermongo"
+    "mongoose",
+    "vermongo",
+    "plugin",
+    "history",
+    "versioning",
+    "rollback"
   ],
   "contributors": [
     "Murat Sutunc <murat@codela.net>"
@@ -25,9 +31,14 @@
   "author": "Codela",
   "license": "MIT",
   "devDependencies": {
+    "@types/chai": "^3.4.35",
+    "@types/mocha": "^2.2.39",
     "@types/mongoose": "^4.7.4",
     "@types/node": "^6.0.63",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
     "mongoose": "^4.8.1",
+    "ts-node": "^2.1.0",
     "typescript": "^2.1.5"
   }
 }

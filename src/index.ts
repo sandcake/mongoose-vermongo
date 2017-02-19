@@ -9,7 +9,7 @@ interface PluginOptions {
 const VERSION: string = "_version";
 const ID: string = "_id";
 
-module.exports = function(schema: Mongoose.Schema, options: PluginOptions) {
+export = function (schema: Mongoose.Schema, options: PluginOptions) {
   if (typeof(options) == 'string') {
     options = {
       collection: options
@@ -53,18 +53,16 @@ module.exports = function(schema: Mongoose.Schema, options: PluginOptions) {
   // Add reference to model to original schema
   schema.statics.VersionedModel = mongoose.model(options.collection, vermongoSchema);
 
-  schema.pre('save', function(next) {    
+  schema.pre('save', function(next) {
     if (this.isNew) {
       // console.log('[new]');
       this[VERSION] = 1;
       return next();
     }
-		
     let baseVersion = this[VERSION];
 
-		// load the base version
+    // load the base version
     let base;
-    
     this.collection
       .findOne({ [ID]: this[ID] })
       .then((foundBase) => {
@@ -151,7 +149,7 @@ function cloneSchema(schema: Mongoose.Schema, mongoose: typeof Mongoose) {
 
     // TODO: find a better way to clone schema
     let clonedPath = {};
-    
+
     clonedPath[path] = (<any>type).options;
     clonedPath[path].unique = false;
     // shadowed props are not all required
