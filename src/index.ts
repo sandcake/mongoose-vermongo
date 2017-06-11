@@ -137,7 +137,52 @@ export = function (schema: Mongoose.Schema, options: PluginOptions) {
 
   // TODO
   schema.pre('update', function(next) { if(options.ignoreMissingHooks) {next();} });
-  schema.pre('findOneAndUpdate', function(next) { if(options.ignoreMissingHooks) {next();} });
+  schema.pre('findOneAndUpdate', function(next) {
+     if(options.ignoreMissingHooks) {next();}
+
+      this.model.find(this._conditions)
+      .then((foundBases: Mongoose.Document[]) => {
+
+        let updatePromises: Promise<void>[] = [];
+
+        foundBases.forEach((base: Mongoose.Document) => {
+          
+          // Clone base object.
+          let clone = JSON.parse(JSON.stringify(base));;
+
+          // Build Vermongo historical ID
+          clone[ID] = { [ID]: base[ID], [VERSION]: base[VERSION] };
+
+          updatePromises.push(
+            new schema.statics.VersionedModel(clone)
+            .save()
+            .then((res) => {
+              //console.log('updated base: ', res);
+            })
+            .catch((err) => {
+                throw(err);
+            })
+          );
+        });
+
+        return Promise.all(updatePromises);
+      })
+      .then(() => {
+          // console.log('[saved]');
+          // Increment version number
+          this._update.$inc = {_version: 1};
+          next();
+          return null;
+      })
+      .catch((err) => {
+          if (options.logError) {
+            console.log(err);
+          }
+          next(err);
+          return null;
+      })
+  });
+
   schema.pre('findOneAndRemove', function(next) { if(options.ignoreMissingHooks) {next();} });
 };
 
