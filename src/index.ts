@@ -3,7 +3,8 @@ import * as Mongoose from 'mongoose';
 interface PluginOptions {
   collection?: string,
   logError?: boolean,
-  mongoose?: typeof Mongoose
+  mongoose?: typeof Mongoose,
+  ignoreMissingHooks?: boolean
 }
 
 const VERSION: string = "_version";
@@ -20,6 +21,7 @@ export = function (schema: Mongoose.Schema, options: PluginOptions) {
   options.collection = options.collection || 'versions';
   options.logError = options.logError || false;
   options.mongoose = options.mongoose || require('mongoose');
+  options.ignoreMissingHooks = options.ignoreMissingHooks || false;
 
   // Make sure there's no _version path
   if (schema.path(VERSION)) {
@@ -134,9 +136,9 @@ export = function (schema: Mongoose.Schema, options: PluginOptions) {
   });
 
   // TODO
-  schema.pre('update', function(next) {});
-  schema.pre('findOneAndUpdate', function(next) {});
-  schema.pre('findOneAndRemove', function(next) {});
+  schema.pre('update', function(next) { if(options.ignoreMissingHooks) {next();} });
+  schema.pre('findOneAndUpdate', function(next) { if(options.ignoreMissingHooks) {next();} });
+  schema.pre('findOneAndRemove', function(next) { if(options.ignoreMissingHooks) {next();} });
 };
 
 function cloneSchema(schema: Mongoose.Schema, mongoose: typeof Mongoose) {
