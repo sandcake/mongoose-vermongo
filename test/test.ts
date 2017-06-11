@@ -86,7 +86,7 @@ describe('vermongo tests', () => {
       })
   });
 
-  it('updating an entry should create a vermongo entry', (done) => {
+  it('saving an entry should create a vermongo entry', (done) => {
     let pageID: mongoose.Types.ObjectId;
     let page = new Page({ title: "foo", content: "bar", path: "baz", tags: ["a", "b", "c"] });
     page.save()
@@ -113,8 +113,36 @@ describe('vermongo tests', () => {
       })
   });
 
+  it('updating an entry should create a vermongo entry', function (done) {
+    this.timeout(10000);
+    let pageID: mongoose.Types.ObjectId;
+    let page = new Page({ title: "foo", content: "bar", path: "baz", tags: ["a", "b", "c"] });
+    page.save()
+      .then((page: IPage) => {
+        pageID = page._id;
+        return Page.findOneAndUpdate({_id: page._id},{title: "foo 2"}, function(err, res) {
+          
+          if(err) { done(err); }
+
+          PageVermongo.find({}, function(err, result) {
+            if(err) done(err);
+            assert(result.length === 1, "expecting a vermongo entry on update");
+            assert(result[0].title === "foo", "changed field title was not correctly updated");
+            assert(result[0].content === "bar", "unchanged field content was not correctly updated");
+            assert(result[0].path === "baz", "unchanged field path was not correctly updated");
+            assert(result[0]._version === 1, "field _version was not correctly updated");
+            assert(result[0]._id._version === 1, "historical field _version was not correctly updated");
+            assert(pageID.equals(result[0]._id._id), "historical field _id was not correctly set");
+            done();
+          });
+        });
+      })
+
+
+  })
+
   // Not particularly useful for travis but important for local dev
-  after((done) => {
+  afterEach((done) => {
     mongoose.connection.db.dropDatabase()
       .then(() => {
         done();
