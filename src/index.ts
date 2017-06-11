@@ -4,7 +4,8 @@ interface PluginOptions {
   collection?: string,
   logError?: boolean,
   mongoose?: typeof Mongoose,
-  ignoreMissingHooks?: boolean
+  ignoreMissingHooks?: boolean,
+  ignorePaths?: string[]
 }
 
 const VERSION: string = "_version";
@@ -22,6 +23,7 @@ export = function (schema: Mongoose.Schema, options: PluginOptions) {
   options.logError = options.logError || false;
   options.mongoose = options.mongoose || require('mongoose');
   options.ignoreMissingHooks = options.ignoreMissingHooks || false;
+  options.ignorePaths = options.ignorePaths || [];
 
   // Make sure there's no _version path
   if (schema.path(VERSION)) {
@@ -61,6 +63,19 @@ export = function (schema: Mongoose.Schema, options: PluginOptions) {
       this[VERSION] = 1;
       return next();
     }
+
+    var modifiedPaths = this.modifiedPaths();
+
+    if (modifiedPaths.length) {
+      var onlyIgnoredPathModified = modifiedPaths.every(function(path) {
+        return options.ignorePaths.indexOf(path) >= 0;
+      });
+
+      if (onlyIgnoredPathModified) {
+        return next();
+      }
+    }
+
     let baseVersion = this[VERSION];
 
     // load the base version
@@ -138,49 +153,70 @@ export = function (schema: Mongoose.Schema, options: PluginOptions) {
   // TODO
   schema.pre('update', function(next) { if(options.ignoreMissingHooks) {next();} });
   schema.pre('findOneAndUpdate', function(next) {
-     if(options.ignoreMissingHooks) {next();}
 
-      this.model.find(this._conditions)
-      .then((foundBases: Mongoose.Document[]) => {
+    if(options.ignoreMissingHooks) {next();}
 
-        let updatePromises: Promise<void>[] = [];
+    const updateKeys = Object.keys(this._update);
+    let updates = [];
+    updateKeys.forEach((key) => {
+      if(key[0] === '$') {
+        updates = updates.concat(Object.keys(this._update[key]));
+      } else {
+        updates.push(key);
+      }
+    })
+    if (updates.length) {
+        let onlyIgnoredPathModified = updates.every(function(path) {
+        return options.ignorePaths.indexOf(path) >= 0;
+      });
 
-        foundBases.forEach((base: Mongoose.Document) => {
-          
-          // Clone base object.
-          let clone = JSON.parse(JSON.stringify(base));;
+      if (onlyIgnoredPathModified) {
+        console.log('onlyIgnoredPathModified')
+        return next();
+      }
+    }
 
-          // Build Vermongo historical ID
-          clone[ID] = { [ID]: base[ID], [VERSION]: base[VERSION] };
+    this.model.find(this._conditions)
+    .then((foundBases: Mongoose.Document[]) => {
 
-          updatePromises.push(
-            new schema.statics.VersionedModel(clone)
-            .save()
-            .then((res) => {
-              //console.log('updated base: ', res);
-            })
-            .catch((err) => {
-                throw(err);
-            })
-          );
-        });
+      let updatePromises: Promise<void>[] = [];
 
-        return Promise.all(updatePromises);
-      })
-      .then(() => {
-          // console.log('[saved]');
-          // Increment version number
-          this._update.$inc = {_version: 1};
-          next();
-          return null;
-      })
-      .catch((err) => {
-          if (options.logError) {
-            console.log(err);
-          }
-          next(err);
-          return null;
-      })
+      foundBases.forEach((base: Mongoose.Document) => {
+        
+        // Clone base object.
+        let clone = JSON.parse(JSON.stringify(base));;
+
+        // Build Vermongo historical ID
+        clone[ID] = { [ID]: base[ID], [VERSION]: base[VERSION] };
+
+        updatePromises.push(
+          new schema.statics.VersionedModel(clone)
+          .save()
+          .then((res) => {
+            //console.log('updated base: ', res);
+          })
+          .catch((err) => {
+              throw(err);
+          })
+        );
+      });
+
+      return Promise.all(updatePromises);
+    })
+    .then(() => {
+        // console.log('[saved]');
+        // Increment version number
+        this._update.$inc = {_version: 1};
+        next();
+        return null;
+    })
+    .catch((err) => {
+        if (options.logError) {
+          console.log(err);
+        }
+        next(err);
+        return null;
+    })
   });
 
   schema.pre('findOneAndRemove', function(next) { if(options.ignoreMissingHooks) {next();} });
