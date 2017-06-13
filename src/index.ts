@@ -155,7 +155,7 @@ export = function (schema: Mongoose.Schema, options: PluginOptions) {
   schema.pre('findOneAndUpdate', function(next) {
 
     if(options.ignoreMissingHooks) {next();}
-
+    
     const updateKeys = Object.keys(this._update);
     let updates = [];
     updateKeys.forEach((key) => {
@@ -171,7 +171,6 @@ export = function (schema: Mongoose.Schema, options: PluginOptions) {
       });
 
       if (onlyIgnoredPathModified) {
-        console.log('onlyIgnoredPathModified')
         return next();
       }
     }
@@ -206,16 +205,18 @@ export = function (schema: Mongoose.Schema, options: PluginOptions) {
     .then(() => {
         // console.log('[saved]');
         // Increment version number
-        this._update.$inc = {_version: 1};
-        next();
-        return null;
+        if (this._update.$inc) {
+          this._update.$inc._version = 1;
+        } else {
+          this._update.$inc = { _version: 1};
+        }
+        return next();
     })
     .catch((err) => {
         if (options.logError) {
           console.log(err);
         }
-        next(err);
-        return null;
+        return next(err);
     })
   });
 

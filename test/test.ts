@@ -125,16 +125,29 @@ describe('vermongo tests', () => {
           if(err) { done(err); }
 
           PageVermongo.find({}, function(err, result) {
+
             if(err) done(err);
+
             assert(result.length === 1, "expecting a vermongo entry on update");
-            assert(result[0].title === "foo", "changed field title was not correctly updated");
-            assert(result[0].content === "bar", "unchanged field content was not correctly updated");
-            assert(result[0].path === "baz", "unchanged field path was not correctly updated");
-            assert(result[0]._version === 1, "field _version was not correctly updated");
-            assert(result[0]._id._version === 1, "historical field _version was not correctly updated");
+            assert(result[0].title === "foo", "changed field title was not correctly saved");
+            assert(result[0].content === "bar", "unchanged field content was not correctly saved");
+            assert(result[0].path === "baz", "unchanged field path was not correctly saved");
+            assert(result[0]._version === 1, "field _version was not correctly saved");
+            assert(result[0]._id._version === 1, "historical field _version was not correctly saved");
             assert(pageID.equals(result[0]._id._id), "historical field _id was not correctly set");
-            done();
+
+            Page.find({}, function(err, results) {
+
+              if(err) done(err);
+
+              assert(result.length === 1, "expecting only one collection entry on update");
+              assert(result[0].title.localeCompare("foo 2"), "changed field title was not correctly updated");
+              done();
+
+            });
+
           });
+          
         });
       })
 
